@@ -1,7 +1,10 @@
 import { View, StyleSheet, ImageSourcePropType } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
-import { useState } from 'react';
+// estas librerias se usaran para poder tener permisos y descargar cosas desde nuestra app
+import { useEffect, useState, useRef} from 'react';
+import * as MediaLibrary from 'expo-media-library'; // libreria para pedir permisos y guardar fotos en galeria del movil
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { captureRef } from 'react-native-view-shot'; // librerias para capturas
 
 
 import Button from '@/components/button';
@@ -16,12 +19,18 @@ import EmojiSticker from '@/components/EmojiSticker';
 const PlaceholderImage = require('@/assets/images/background-image.png');
 
 export default function Index() {
+   const imageRef = useRef<View>(null); // se usa para guardar captura nada mas que de la foto.
+  // Primer parametro ve el estado del permiso y ek segundo la funcion para pedirlo
+  const [permissionResponse, requestPermission] = MediaLibrary.usePermissions({
+  writeOnly: true,
+});
   const [selectedImage, setSelectedImage] = useState<string | undefined>(undefined);
   // Control if we show the buttons iniciales or the options of edition
   const [showAppOptions, setShowAppOptions] = useState<boolean>(false);
   // Controla si el modal del selector de emojis esta visible.
   const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
   const [pickedEmoji, setPickedEmoji] = useState<ImageSourcePropType | undefined>(undefined);
+  
 
   const pickImageAsync = async () => { // async, async fuction, give time to the user
     let result = await ImagePicker.launchImageLibraryAsync({ // this librery open the movil gallery
@@ -53,18 +62,37 @@ export default function Index() {
     setIsModalVisible(false);
   };
 
-  const onSaveImageAsync = async () => {
-    // we will implement this later
-  };
+  // con el granted nos aseguramos que tenemos ya permisos para entrar (ya viene en el propio objeto al importar esta variable)
+  useEffect(() => {
+  if (!permissionResponse?.granted) {
+    requestPermission();
+  }
+}, [permissionResponse, requestPermission]);
 
-  
+  const onSaveImageAsync = async () => {
+    try { // esto como puede fallar se pone con sus respecgtivos try-catch
+      const localUri = await captureRef(imageRef, { // esta funcion hace una foto desde ese view 
+        height: 440,
+        quality: 1,
+      });
+
+      await MediaLibrary.saveToLibraryAsync(localUri); // esto lo guarda en la libreria del movil 
+      if (localUri) { // si se obtiene la foto se avisa
+        alert('Saved!');
+      }
+    } catch (e) {
+      console.log(e);
+    }
+  };
 
 
   return (
     <GestureHandlerRootView style={styles.container}>
       <View style={styles.imageContainer}>
-        <ImageViewer imgSource={PlaceholderImage} selectedImage={selectedImage} />
-        {pickedEmoji && <EmojiSticker imageSize={40} stickerSource={pickedEmoji} />}
+        <View ref={imageRef} collapsable={false}>
+          <ImageViewer imgSource={PlaceholderImage} selectedImage={selectedImage} />
+          {pickedEmoji && <EmojiSticker imageSize={40} stickerSource={pickedEmoji} />}
+        </View>
       </View>
       {/* Si ya estamos editando la imagen, mostramos las opciones extra.
           Si no, mostramos los botones iniciales para elegir o usar la foto. */}
