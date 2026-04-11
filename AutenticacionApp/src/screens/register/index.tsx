@@ -12,6 +12,22 @@ import { StatusMessage } from "@/components/status-message";
 import { useAuth } from "@/hooks/use-auth";
 import { registerSchema, type RegisterSchema } from "@/validations/register-schema";
 
+function getErrorMessage(error: unknown, fallbackMessage: string) {
+  if (error instanceof Error) {
+    return error.message;
+  }
+
+  if (typeof error === "object" && error !== null && "message" in error) {
+    const message = (error as { message?: unknown }).message;
+
+    if (typeof message === "string" && message.trim().length > 0) {
+      return message;
+    }
+  }
+
+  return fallbackMessage;
+}
+
 export function RegisterScreen() {
   const router = useRouter();
   const { isSupabaseConfigured, signUp } = useAuth();
@@ -42,7 +58,7 @@ export function RegisterScreen() {
         startTransition(() => router.replace("/login"));
       }, 900);
     } catch (error) {
-      setErrorMessage(error instanceof Error ? error.message : "Unable to register right now.");
+      setErrorMessage(getErrorMessage(error, "Unable to register right now."));
     } finally {
       setIsSubmitting(false);
     }
@@ -52,7 +68,7 @@ export function RegisterScreen() {
     <AuthShell
       eyebrow="New account"
       title="Register your profile"
-      subtitle="Create a Supabase user and return to the login screen when registration finishes."
+      subtitle='Create a record in the public."User" table and return to the login screen.'
       footer={
         <View className="flex-row items-center justify-center gap-1">
           <Text className="text-sm text-slate-400">Already have an account?</Text>
@@ -69,7 +85,7 @@ export function RegisterScreen() {
       <View className="gap-4">
         {!isSupabaseConfigured ? (
           <StatusMessage
-            message="Create a .env file from .env.example and add your Supabase credentials before testing auth."
+            message="Add your Supabase URL and publishable key to the .env file before testing register."
           />
         ) : null}
 

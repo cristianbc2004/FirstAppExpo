@@ -40,15 +40,22 @@ export function HomeScreen() {
           className="mt-8 gap-4 rounded-[28px] border border-white/10 bg-slate-900/90 p-6"
         >
           <View className="gap-2">
+            <Text className="text-sm font-medium text-slate-400">User name</Text>
+            <Text className="text-lg font-semibold text-white">
+              {session?.name ?? "No name available"}
+            </Text>
+          </View>
+
+          <View className="gap-2">
             <Text className="text-sm font-medium text-slate-400">Authenticated email</Text>
             <Text className="text-lg font-semibold text-white">
-              {session?.user.email ?? "No email available"}
+              {session?.email ?? "No email available"}
             </Text>
           </View>
 
           <View className="gap-2">
             <Text className="text-sm font-medium text-slate-400">User id</Text>
-            <Text className="text-sm text-slate-200">{session?.user.id ?? "No user id"}</Text>
+            <Text className="text-sm text-slate-200">{session?.id ?? "No user id"}</Text>
           </View>
 
           <PrimaryButton label="Sign out" loading={isSubmitting} onPress={handleSignOut} />
