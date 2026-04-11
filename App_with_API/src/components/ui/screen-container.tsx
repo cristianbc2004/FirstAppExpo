@@ -1,3 +1,4 @@
+// este componenete es para que las vistas tengan el mismo diseño y que ademas se ajuste bien a la pantalla del movil.
 import { ReactNode } from 'react';
 import { KeyboardAvoidingView, Platform, ScrollView, View, ScrollViewProps } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -8,12 +9,14 @@ type ScreenContainerProps = {
 } & ScrollViewProps;
 
 function screenContainer({ children, scrollable = false, ...scrollProps }: ScreenContainerProps) {
-  const content = scrollable ? (
+  {/* showsVerticalScrollIndicator={false}: oculta la barra lateral de scroll */}
+  const content = scrollable ? (  
     <ScrollView
       contentContainerStyle={{ flexGrow: 1 }}
-      showsVerticalScrollIndicator={false}
+      showsVerticalScrollIndicator={false} 
       {...scrollProps}
     >
+      {/* hace que el contenido interno del scroll pueda ocupar toda la altura disponible */}
       <View className="flex-1 px-6 pb-8 pt-4">{children}</View>
     </ScrollView>
   ) : (

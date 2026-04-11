@@ -18,6 +18,8 @@ function searchScreen() {
           </AppText>
         </Animated.View>
 
+        {/* En esta parte es donde se valida con React Hook Form + Zod
+        Ademas no podemos usar link directamente ya que no sabemos hacia donde vamos */}
         <CitySearchForm
           onSubmitCity={(city) => {
             router.push({ pathname: '/weather/[city]', params: { city } });

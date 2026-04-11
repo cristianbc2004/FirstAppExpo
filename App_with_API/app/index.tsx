@@ -9,7 +9,7 @@ import { WeatherPreviewCard } from '@/features/weather/components/weather-previe
 
 function homeScreen() {
   return (
-    <ScreenContainer>
+    <ScreenContainer> {/* Esta componente es la de la vista, para que todas se vean asi */}
       <View className="flex-1 justify-between">
         <View className="gap-6">
           <Animated.View entering={FadeInDown.duration(500)} className="gap-3">

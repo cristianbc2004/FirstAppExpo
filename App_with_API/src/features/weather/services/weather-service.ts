@@ -16,6 +16,11 @@ type OpenWeatherResponse = {
   };
 };
 
+type OpenWeatherErrorResponse = {
+  cod?: string | number;
+  message?: string;
+};
+
 type WeatherDetails = {
   city: string;
   description: string;
@@ -26,6 +31,15 @@ type WeatherDetails = {
   windSpeed: number;
 };
 
+async function readErrorMessage(response: Response) {
+  try {
+    const payload = (await response.json()) as OpenWeatherErrorResponse;
+    return payload.message?.trim() ?? '';
+  } catch {
+    return '';
+  }
+}
+
 async function fetchWeatherByCity(city: string): Promise<WeatherDetails> {
   if (!env.openWeatherApiKey) {
     throw new Error('Missing EXPO_PUBLIC_OPENWEATHER_API_KEY. Add it to your .env file before running the app.');
@@ -35,11 +49,25 @@ async function fetchWeatherByCity(city: string): Promise<WeatherDetails> {
   const response = await fetch(url);
 
   if (!response.ok) {
+    const apiMessage = await readErrorMessage(response);
+
+    if (response.status === 401) {
+      throw new Error('OpenWeather rejected the API key. Confirm the key is correct and active, then try again in a few minutes.');
+    }
+
     if (response.status === 404) {
       throw new Error('City not found. Try another search term.');
     }
 
-    throw new Error('Weather service is unavailable right now.');
+    if (response.status === 429) {
+      throw new Error('OpenWeather rate limit reached. Wait a moment and try again.');
+    }
+
+    if (apiMessage) {
+      throw new Error(`OpenWeather error: ${apiMessage}.`);
+    }
+
+    throw new Error(`Weather service is unavailable right now (HTTP ${response.status}).`);
   }
 
   const payload = (await response.json()) as OpenWeatherResponse;

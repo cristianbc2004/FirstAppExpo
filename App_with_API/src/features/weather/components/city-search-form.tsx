@@ -7,17 +7,19 @@ import { AppInput } from '@/components/ui/app-input';
 import { citySchema, type CitySchema } from '@/features/weather/schemas/city-schema';
 
 type CitySearchFormProps = {
-  onSubmitCity: (city: string) => void;
+  onSubmitCity: (city: string) => void; // su implementacion esta en search en donde sirve para la nevagacion
 };
 
 function citySearchForm({ onSubmitCity }: CitySearchFormProps) {
+  // Aqui se Inicializa React Hook Form
   const form = useForm<CitySchema>({
-    resolver: zodResolver(citySchema),
+    resolver: zodResolver(citySchema), // conecta Zod con React Hook Form
     defaultValues: {
       city: '',
     },
   });
 
+  // aqui se valida, donde si se valida, pasa al onSubmitCity
   const handleSubmit = form.handleSubmit((values) => {
     onSubmitCity(values.city.trim());
   });
