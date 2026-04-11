@@ -12,6 +12,22 @@ import { StatusMessage } from "@/components/status-message";
 import { useAuth } from "@/hooks/use-auth";
 import { loginSchema, type LoginSchema } from "@/validations/login-schema";
 
+function getErrorMessage(error: unknown, fallbackMessage: string) {
+  if (error instanceof Error) {
+    return error.message;
+  }
+
+  if (typeof error === "object" && error !== null && "message" in error) {
+    const message = (error as { message?: unknown }).message;
+
+    if (typeof message === "string" && message.trim().length > 0) {
+      return message;
+    }
+  }
+
+  return fallbackMessage;
+}
+
 export function LoginScreen() {
   const router = useRouter();
   const { isSupabaseConfigured, signIn } = useAuth();
@@ -34,7 +50,7 @@ export function LoginScreen() {
       await signIn(values.email, values.password);
       router.replace("/home");
     } catch (error) {
-      setErrorMessage(error instanceof Error ? error.message : "Unable to login right now.");
+      setErrorMessage(getErrorMessage(error, "Unable to login right now."));
     } finally {
       setIsSubmitting(false);
     }
@@ -61,7 +77,7 @@ export function LoginScreen() {
       <View className="gap-4">
         {!isSupabaseConfigured ? (
           <StatusMessage
-            message="Create a .env file from .env.example and add your Supabase credentials before testing auth."
+            message="Add your Supabase URL and publishable key to the .env file before testing login."
           />
         ) : null}
 
