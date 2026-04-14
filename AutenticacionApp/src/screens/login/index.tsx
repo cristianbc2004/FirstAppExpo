@@ -43,12 +43,14 @@ export function LoginScreen() {
   });
 
   const onSubmit = handleSubmit(async (values) => {
-    setIsSubmitting(true);
+    // cuando se pulsa el boton de login, estos valores se ponen con true para que se muestre el cargando y null
+    // para que no muestre mensaje de error ninguno
+    setIsSubmitting(true); 
     setErrorMessage(null);
 
     try {
-      await signIn(values.email, values.password);
-      router.replace("/home");
+      await signIn(values.email, values.password); // se valida los datos aqui y si son correctos, se manda al home
+      router.replace("/home"); 
     } catch (error) {
       setErrorMessage(getErrorMessage(error, "Unable to login right now."));
     } finally {
@@ -57,7 +59,7 @@ export function LoginScreen() {
   });
 
   return (
-    <AuthShell
+    <AuthShell // render de la pantalla
       eyebrow="Welcome back"
       title="Login to continue"
       subtitle="Use your email and password to access the protected home screen."
